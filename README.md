@@ -3,6 +3,7 @@
 面向企业实践的端到端证券分析平台：集数据采集、量化分析、画像识别、自然语言解读与可视化报告于一体，支持模块化扩展与并行后台预计算，提供面向投资决策的高质量结论。
 页面展示
 <img width="2552" height="2711" alt="image" src="https://github.com/user-attachments/assets/2397d355-0534-40e5-8303-6755ff9fdf5d" />
+<img width="2552" height="3775" alt="image" src="https://github.com/user-attachments/assets/4d2cbd5f-dfca-4546-8d8d-d10caeccc3c7" />
 
 
 ## 产品概览
