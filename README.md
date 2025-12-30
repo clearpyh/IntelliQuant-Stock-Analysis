@@ -5,6 +5,113 @@
 <img width="2552" height="2711" alt="image" src="https://github.com/user-attachments/assets/2397d355-0534-40e5-8303-6755ff9fdf5d" />
 <img width="2552" height="3775" alt="image" src="https://github.com/user-attachments/assets/4d2cbd5f-dfca-4546-8d8d-d10caeccc3c7" />
 
+## 项目亮点
+- 模块化分析与独立渲染：K线与指标、相关性、PCA、波动性（GARCH）、季节性（STL/ACF/PACF）、聚类、基本面因子暴露/画像、涨跌概率（逻辑回归）
+- 后台并行预计算与缓存：切换模块时快速就绪；统一 pending/ready/failed 状态管理与降级策略
+- 智能解读与报告：统一人格的“大模型顾问（小金）”输出通俗结论与风险提示；自动生成 HTML/JSON/TXT 报告
+- 数据通道与适配：CSV 行情与财报四表；行业映射与批量采集；pyarrow 加速读取与缓存
+
+## 架构总览
+- 前端交互：[app.py](file:///f:/a数据分析实验课/数据分析课程作业/app.py) 使用 Streamlit 提供模块导航、分析触发、状态展示与导出
+- 分析与可视化：
+  - 时间序列与统计学习位于 [timeseries.py](file:///f:/a数据分析实验课/数据分析课程作业/src/analysis/timeseries.py) 与 [stats.py](file:///f:/a数据分析实验课/数据分析课程作业/src/analysis/stats.py)
+  - 图表渲染集中在 [visualization.py](file:///f:/a数据分析实验课/数据分析课程作业/src/visualization.py)
+- 解释与结论：
+  - 规则化解释在 [explanation.py](file:///f:/a数据分析实验课/数据分析课程作业/src/explanation.py)
+  - LLM 结论封装在 [tools/llm_conclusion.py](file:///f:/a数据分析实验课/数据分析课程作业/tools/llm_conclusion.py) 与 [conclusion.py](file:///f:/a数据分析实验课/数据分析课程作业/src/conclusion.py)
+- 数据与存取：数据采集与导出在 [data_io.py](file:///f:/a数据分析实验课/数据分析课程作业/src/data_io.py)，统一仓储在 [storage/repository.py](file:///f:/a数据分析实验课/数据分析课程作业/storage/repository.py)
+- 模块注册与分发：前端到后台执行由 [registry/analysis_registry.py](file:///f:/a数据分析实验课/数据分析课程作业/registry/analysis_registry.py) 与 [registry/dispatcher.py](file:///f:/a数据分析实验课/数据分析课程作业/registry/dispatcher.py) 协调
+
+```mermaid
+graph TD
+    UI[Streamlit 前端<br/>app.py] --> Dsp[模块分发<br/>dispatcher.py]
+    Dsp --> Mod[kline/corr/pca/volatility/seasonality/clustering/factor_portrait/probability]
+    Mod --> Ana[分析层<br/>timeseries.py / stats.py]
+    Ana --> Viz[可视化<br/>visualization.py]
+    Ana --> Exp[解释层<br/>explanation.py / conclusion.py]
+    Ana --> Stg[存储<br/>storage/repository.py]
+    Data[(CSV 行情/财报)] --> IO[data_io.py]
+    IO --> Ana
+```
+
+## 快速开始
+- 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+- 配置环境（根目录 .env.local）
+
+```properties
+LLM_PROVIDER=deepseek
+LLM_ENDPOINT=https://api.deepseek.com/v1/chat/completions
+LLM_MODEL=deepseek-reasoner
+LLM_FAST_MODEL=deepseek-chat
+LLM_API_KEY=your_key_here
+TUSHARE_TOKEN=your_tushare_token
+```
+
+- 启动前端
+
+```bash
+streamlit run app.py
+```
+
+- 访问地址： http://localhost:8501
+
+## 使用指南
+- 单证券分析
+  - 侧边栏输入证券 → 点击“开始分析” → 在模块胶囊间切换观察各图表与“小金”解读
+  - 基本面样本不足时自动降级为“因子画像”，避免工程化错误暴露
+- 行业研究
+  - 上传行业映射 CSV 或扫描本地 data/ohlcv → 构建行业矩阵 → 相关性/PCA/聚类/因子/概率模块依次就绪
+- 报告导出
+  - 完成“K线与指标”后由“小金”卡片提示导出：单证券/行业 HTML、结论 JSON、摘要 TXT
+
+## 数据与配置
+- 行业映射：CSV 至少包含 symbol, industry，可扩展 name
+- 行情数据：data/ohlcv 自动发现；缺失时可通过 [data_io.py](file:///f:/a数据分析实验课/数据分析课程作业/src/data_io.py) 抓取或使用脚本
+- 财报四表：fina_indicator.csv、balancesheet.csv、income.csv、cashflow.csv；缺失将影响基本面与行业评分
+- 环境变量加载：在程序入口自动读取 .env.local/.env（见 [config.py:load_local_env](file:///f:/a数据分析实验课/数据分析课程作业/src/config.py#L4-L24)）
+
+## 跨资产数据源（Yahoo Finance）
+- 默认使用 Yahoo Finance 获取跨资产（黄金/原油/债券/汇率），自动缓存至 data/cross_assets，网络受限时回读本地缓存
+- 常用代码
+  - 黄金期货：GC=F
+  - 黄金ETF：GLD
+  - WTI 原油：CL=F
+  - 10年期美债ETF：TLT（或 IEF）
+  - 美元兑人民币：USDCNY=X 或 USDCNH=X
+- 示例
+
+```python
+import yfinance as yf
+gold = yf.download("GC=F", start="2020-01-01")
+oil = yf.download("CL=F", start="2020-01-01")
+gold_close = gold["Close"]
+oil_close = oil["Close"]
+```
+
+- 前端开启“跨资产参考”后即可在相关性热图中联动显示；行业视图亦可开启“加入跨资产参考”生成“行业 + 跨资产”热图
+
+
+## 功能清单
+- 单只证券分析：K线与指标、ADX、趋势结论
+- 行业内多证券横向分析：行业基准、核心指标对比、自动标签与排名
+- 相关性与分散性：热力图、分散性小结、等权组合波动对比
+- PCA 主因子分析：解释方差与碎石图
+- 波动性分析：年化历史波动与 GARCH 下一期方差
+- 季节性分解：STL/ACF/PACF
+- 风险-收益聚类：收益/波动聚类与分化程度说明
+- 基本面因子暴露与自动降级为画像：分位数与趋势
+- 涨跌概率：逻辑回归、AUC 与概率分布
+- 行业评分与综合分数：盈利/偿债/成长/回报四维加权
+- 报告导出：评分 CSV、行业文本报告、个股详细报告 TXT、单证券/行业 HTML
+- 批量财报采集与行业映射解析
+- LLM 不可用时自动降级为规则化文本
+
+
 
 ## 产品概览
 - 场景覆盖：单证券分析、行业对比、批量采集与报告输出
