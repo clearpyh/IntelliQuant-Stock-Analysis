@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>智能证券分析系统</title>
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { border: 1px solid #ddd; border-radius: 6px; padding: 12px; }
+    .hidden { display: none; }
+    textarea { width: 100%; height: 160px; }
+    table { border-collapse: collapse; width: 100%; }
+    th,td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>智能证券分析系统</h1>
+  <div>
+    <label>选择主功能</label>
+    <input type="radio" name="main" value="single" checked> 单个证券分析
+    <input type="radio" name="main" value="industry"> 行业与股票选择
+  </div>
+  <div class="row">
+    <div class="card" id="left">
+      <h2>单个证券分析</h2>
+      <div>
+        <label>输入证券代码或名称</label>
+        <input id="q" placeholder="例如: 600006 或 晋西车轴">
+      </div>
+      <div>
+        <label>行业</label>
+        <input id="ind" placeholder="例如: 汽车" value="汽车">
+      </div>
+      <div>
+        <label>开始日期</label>
+        <input id="sd" type="date">
+        <label>结束日期</label>
+        <input id="ed" type="date">
+      </div>
+      <div>
+        <button id="run_single">开始分析</button>
+      </div>
+      <div id="single_result" class="card"></div>
+    </div>
+    <div class="card" id="right">
+      <h2>行业与股票选择</h2>
+      <div>
+        <label>上传行业证券映射CSV</label>
+        <input id="map_upload" type="file" accept=".csv">
+        <button id="btn_upload">上传</button>
+      </div>
+      <div>
+        <label>选择行业</label>
+        <input id="industry_sel" placeholder="例如: 汽车" value="汽车">
+      </div>
+      <div>
+        <label>选择行业内证券(逗号分隔)</label>
+        <input id="symbols_sel" placeholder="600006.SH,000338.SZ">
+      </div>
+      <div>
+        <label>权重 JSON</label>
+        <input id="weights_json" value='{"profitability":0.4,"solvency":0.3,"growth":0.2,"return":0.1}'>
+      </div>
+      <div>
+        <button id="run_industry">加载行业分析</button>
+      </div>
+      <div id="industry_result" class="card"></div>
+    </div>
+  </div>
+  <script src="/static/main.js"></script>
+</body>
+</html>

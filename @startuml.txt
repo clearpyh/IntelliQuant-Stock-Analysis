@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor 用户
+actor 管理员
+
+package "前台用户功能" {
+    usecase "浏览商品" as UC1
+    usecase "搜索商品" as UC2
+    usecase "注册账号" as UC3
+    usecase "登录" as UC4
+    usecase "购物车管理" as UC5
+    usecase "下订单" as UC6
+}
+
+package "后台管理功能" {
+    usecase "管理商品" as UC7
+    usecase "管理订单" as UC8
+    usecase "管理用户" as UC9
+    usecase "管理操作员" as UC10
+}
+
+用户 --> UC1
+用户 --> UC2
+用户 --> UC3
+用户 --> UC4
+用户 --> UC5
+用户 --> UC6
+
+管理员 --> UC7
+管理员 --> UC8
+管理员 --> UC9
+管理员 --> UC10
+
+@enduml

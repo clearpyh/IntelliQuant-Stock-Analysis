@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ industry }} 行业分析报告</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    h1, h2 { margin: 8px 0; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f3f3f3; }
+    .chart { margin: 12px 0; }
+    .conclusion { margin: 8px 0; padding: 8px; border: 1px solid #eee; }
+  </style>
+  </head>
+<body>
+  <h1>{{ industry }} 行业分析报告</h1>
+
+  <h2>基本面指标总览（最近一期）</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>证券</th>
+        <th>ROE</th>
+        <th>ROA</th>
+        <th>毛利率</th>
+        <th>资产负债率</th>
+        <th>经营现金流</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.symbol }}</td>
+        <td>{{ r.roe if r.roe is defined else '' }}</td>
+        <td>{{ r.roa if r.roa is defined else '' }}</td>
+        <td>{{ r.grossprofit_margin if r.grossprofit_margin is defined else '' }}</td>
+        <td>{{ r.debt_to_assets if r.debt_to_assets is defined else '' }}</td>
+        <td>{{ r.oper_cash_flow if r.oper_cash_flow is defined else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>图表</h2>
+  {% for p in charts %}
+    <div class="chart">
+      <img src="{{ p }}" alt="chart" style="max-width:100%" />
+    </div>
+  {% endfor %}
+
+  <h2>十条结论</h2>
+  {% for c in conclusions %}
+    <div class="conclusion">
+      <strong>{{ c.id }} - {{ c.title }}</strong>
+      <p>{{ c.summary }}</p>
+      <p>方法：{{ c.method }}；置信度：{{ c.confidence }}</p>
+      <p>关键指标：{{ c.metrics }}</p>
+      {% if c.evidence_refs %}
+      <ul>
+        {% for e in c.evidence_refs %}
+          <li>{{ e.type }}: {{ e.path }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if c.risk_notes %}
+      <p>风险提示：{{ c.risk_notes }}</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+</body>
+</html>

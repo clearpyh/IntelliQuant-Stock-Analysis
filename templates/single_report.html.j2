@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>{{ symbol }} 单证券分析报告</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    h1, h2 { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { border: 1px solid #ddd; padding: 12px; border-radius: 6px; }
+    ul { padding-left: 18px; }
+    img { max-width: 100%; height: auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>{{ symbol }} 单证券分析报告</h1>
+  <p>行业：{{ industry }}</p>
+
+  <h2>关键事实</h2>
+  <div class="grid">
+    <div class="card">
+      <ul>
+        <li>最新收盘：{{ facts.last_close }}</li>
+        <li>SMA斜率：{{ facts.ma_slope }}</li>
+        <li>EMA斜率：{{ facts.ema_slope }}</li>
+        {% if facts.rsi_last is defined %}
+        <li>RSI：{{ facts.rsi_last }}</li>
+        {% endif %}
+        {% if facts.industry_corr_mean is defined %}
+        <li>行业相关性均值：{{ facts.industry_corr_mean }}</li>
+        {% endif %}
+        {% if facts.pca_first_var is defined %}
+        <li>PCA首因子解释率：{{ facts.pca_first_var }}</li>
+        {% endif %}
+      </ul>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>指标</th><th>值</th></tr></thead>
+        <tbody>
+          {% for k,v in metrics.items() %}
+          <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>图表</h2>
+  <div class="grid">
+    {% for p in charts %}
+    <div class="card">
+      <img src="{{ p }}" alt="chart">
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2>十条结论与建议</h2>
+  <ol>
+    {% for c in conclusions %}
+    <li>
+      <strong>{{ c.title }}</strong>（方法：{{ c.method }}，可信度：{{ c.confidence }}）
+      <p>{{ c.summary }}</p>
+      {% if c.advice is defined %}
+      <p>建议：{{ c.advice }}</p>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+
+  <p>风险提示：市场波动较大，需结合更多数据与自身风险偏好决策。</p>
+</body>
+</html>

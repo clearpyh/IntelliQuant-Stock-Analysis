@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+.venv/
+
+# OS/IDE
+.DS_Store
+*.swp
+
+# Secrets
+.env.local
+
+# Data artifacts (optional to include)
+data/ohlcv/
+data/fundamentals/
+
+# Build/exports
+export/
+
+# Trae/IDE
+.trae/
